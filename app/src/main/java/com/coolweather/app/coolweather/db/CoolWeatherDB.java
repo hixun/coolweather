@@ -39,7 +39,7 @@ public class CoolWeatherDB {
     }
 
     /**
-     * 获取CoolWeatherDB的数据
+     * 获取CoolWeatherDB实例
      */
     public synchronized static CoolWeatherDB getInstance(Context context){
         if (coolWeatherDB == null){
@@ -72,6 +72,7 @@ public class CoolWeatherDB {
                 province.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 province.setProvinceName(cursor.getString(cursor.getColumnIndex("province_name")));
                 province.setProvinceCode(cursor.getString(cursor.getColumnIndex("province_code")));
+                list.add(province);
             }while (cursor.moveToNext());
         }
         return list;
