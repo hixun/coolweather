@@ -8,17 +8,22 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.coolweather.app.coolweather.R;
 import com.coolweather.app.coolweather.service.AutoUpdateService;
 import com.coolweather.app.coolweather.util.HttpCallbackListener;
 import com.coolweather.app.coolweather.util.HttpUtil;
 import com.coolweather.app.coolweather.util.Utility;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Created by hixun on 2017/1/10.
@@ -104,7 +109,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
                 String weatherCode = prefs.getString("weather_code","");
                 if (!TextUtils.isEmpty(weatherCode)) {
-                    queryWeatherInfo(weatherCode);
+                    queryWeatherInfo(weatherCode,"city");
                 }
                 break;
             default:
@@ -116,15 +121,27 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
      * 查询县级代号所对应的天气代号
      */
     private void queryWeatherCode(String countyCode) {
-        String address = "http://www/weather.com.cn/data/list3/city" + countyCode + ".xml";
+        String address = "http://www.weather.com.cn/data/list3/city" + countyCode + ".xml";
         queryFromServer(address,"countyCode");
     }
 
     /**
      * 查询天气代号所对应的天气。
      */
-    private void queryWeatherInfo(String weatherCode) {
-        String address = "http://www/weather.com.cn/data/cityinfo/" + weatherCode + ".hxml";
+//    private void queryWeatherInfo(String weatherCode) {
+//        String address = "http://www/weather.com.cn/data/cityinfo/" + weatherCode + ".hxml";
+//        queryFromServer(address,"weatherCode");
+//    }
+    private void queryWeatherInfo(String weatherCode,String type){
+        if("city".equals(type)){
+            try {
+                weatherCode = URLEncoder.encode(weatherCode,"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        String address="http://wthrcdn.etouch.cn/weather_mini?"+type+"="+weatherCode;
+        Log.d("WeatherActivity",address);
         queryFromServer(address,"weatherCode");
     }
 
@@ -138,11 +155,15 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
             public void onFinish(String response) {
                 if ("countyCode".equals(type)){
                     if (!TextUtils.isEmpty(response)) {
+                        Toast.makeText(WeatherActivity.this,
+                                "222222222",Toast.LENGTH_SHORT).show();
                         //从服务器返回的数据中解析出天气代号
                         String[] array = response.split("\\|");
                         if (array != null && array.length == 2) {
                             String weatherCode = array[1];
-                            queryWeatherInfo(weatherCode);
+                            queryWeatherInfo(weatherCode,"citykey");
+                            Toast.makeText(WeatherActivity.this,
+                                    "11111111",Toast.LENGTH_SHORT).show();
                         }
                     }
                 }else if ("weatherCode".equals(type)){
@@ -187,79 +208,4 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         Intent intent = new Intent(this, AutoUpdateService.class);
         startService(intent);
     }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
